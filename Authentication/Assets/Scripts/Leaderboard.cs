@@ -1,0 +1,65 @@
+using PlayFab;
+using PlayFab.ClientModels;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
+
+public class Leaderboard : MonoBehaviour
+{
+    public GameObject leaderboardCanvas;
+    public GameObject[] leaderboardEntries;
+    public static Leaderboard instance;
+    private void Awake()
+    {
+        instance = this;
+    }
+
+    public void OnLoggedIn()
+    {
+        leaderboardCanvas.SetActive(true);
+        DisplayLeaderboard();
+    }
+
+    public void DisplayLeaderboard()
+    {
+        GetLeaderboardRequest getLeaderboardRequest = new GetLeaderboardRequest
+        {
+            StatisticName = "FastestTime",
+            MaxResultsCount = 10
+        };
+        PlayFabClientAPI.GetLeaderboard(getLeaderboardRequest,
+            result => UpdateLeaderboardUI(result.Leaderboard),
+            error => Debug.Log(error.ErrorMessage));
+    }
+
+
+    void UpdateLeaderboardUI(List<PlayerLeaderboardEntry> leaderboard)
+    {
+        Debug.Log("Update Made: " + leaderboardEntries.Length);
+        for (int x = 0; x < leaderboardEntries.Length; x++)
+        {
+            Debug.Log("Update Made: " + leaderboard.Count);
+            leaderboardEntries[x].SetActive(x < leaderboard.Count);
+            if (x >= leaderboard.Count) continue;
+
+            leaderboardEntries[x].transform.Find("PlayerName").GetComponent<TextMeshProUGUI>().text = (leaderboard[x].Position + 1) + ". " + leaderboard[x].DisplayName;
+            leaderboardEntries[x].transform.Find("ScoreText").GetComponent<TextMeshProUGUI>().text = (-(float)leaderboard[x].StatValue * 0.001f).ToString("F2");
+        }
+    }
+
+    public void SetLeaderboardEntry(int newScore)
+    {
+        ExecuteCloudScriptRequest request = new ExecuteCloudScriptRequest
+        {
+            FunctionName = "UpdateHighScore",
+            FunctionParameter = new { Score = newScore }
+        };
+
+        PlayFabClientAPI.ExecuteCloudScript(request,
+                result => DisplayLeaderboard(),
+                error => Debug.Log(error.ErrorMessage)
+                );
+        Debug.Log("Request Made");
+    }
+}

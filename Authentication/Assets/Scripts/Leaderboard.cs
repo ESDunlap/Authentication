@@ -50,10 +50,11 @@ public class Leaderboard : MonoBehaviour
 
     public void SetLeaderboardEntry(int newScore)
     {
+        Debug.Log("Uploaded Score = " + newScore);
         ExecuteCloudScriptRequest request = new ExecuteCloudScriptRequest
         {
             FunctionName = "UpdateHighScore",
-            FunctionParameter = new { Score = newScore }
+            FunctionParameter = new { score = newScore }
         };
 
         PlayFabClientAPI.ExecuteCloudScript(request,

@@ -4,6 +4,8 @@ using TMPro;
 public class PlayerController : MonoBehaviour
 {
     public float speed;
+    public float rotateSpeed;
+    public float jumpPower;
     public GameObject playButton;
     public TextMeshProUGUI curTimeText;
     private Rigidbody rig;
@@ -16,6 +18,26 @@ public class PlayerController : MonoBehaviour
     void Awake()
     {
         rig = GetComponent<Rigidbody>();
+    }
+
+    private void FixedUpdate()
+    {
+        if (!isPlaying)
+            return;
+        if (Input.GetKey(KeyCode.Q))
+            gameObject.transform.Rotate(0, rotateSpeed, 0);
+        if (Input.GetKey(KeyCode.E))
+            gameObject.transform.Rotate(0, -rotateSpeed, 0);
+        if (Input.GetKey(KeyCode.Space))
+            Jump();
+    }
+
+    void Jump()
+    {
+        if (gameObject.transform.position.y <= 0.2)
+        {
+            rig.AddForce(Vector3.up * jumpPower);
+        }
     }
 
     // Update is called once per frame
@@ -34,6 +56,7 @@ public class PlayerController : MonoBehaviour
         if(other.gameObject.CompareTag("Collectable"))
         {
             collectablesPicked++;
+            speed *= (float) 1.2;
             Destroy(other.gameObject);
             if (collectablesPicked == maxCollectables)
                 End();

@@ -6,6 +6,8 @@ public class PlayerController : MonoBehaviour
     public float speed;
     public float rotateSpeed;
     public float jumpPower;
+    public Camera gameCamera;
+    public Camera preGameCamera;
     public GameObject playButton;
     public TextMeshProUGUI curTimeText;
     private Rigidbody rig;
@@ -34,10 +36,9 @@ public class PlayerController : MonoBehaviour
 
     void Jump()
     {
-        if (gameObject.transform.position.y <= 0.2)
-        {
-            rig.AddForce(Vector3.up * jumpPower);
-        }
+        Ray ray = new Ray(transform.position, Vector3.down);
+        if (Physics.Raycast(ray, 0.7f))
+            rig.AddForce(Vector3.up * jumpPower, ForceMode.Impulse);
     }
 
     // Update is called once per frame
@@ -48,7 +49,9 @@ public class PlayerController : MonoBehaviour
         curTimeText.text = (Time.time - startTime).ToString("F2");
         float x = Input.GetAxis("Horizontal") * speed;
         float z = Input.GetAxis("Vertical") * speed;
-        rig.linearVelocity = new Vector3(x, rig.linearVelocity.y, z);
+        Vector3 dir = (transform.forward * z + transform.right * x);
+        dir.y = rig.linearVelocity.y;
+        rig.linearVelocity = dir;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -66,6 +69,8 @@ public class PlayerController : MonoBehaviour
     public void Begin()
     {
         playButton.SetActive(false);
+        preGameCamera.gameObject.SetActive(false);
+        gameCamera.gameObject.SetActive(true);
         startTime = Time.time;
         Debug.Log("Start Time" + startTime);
         isPlaying = true;

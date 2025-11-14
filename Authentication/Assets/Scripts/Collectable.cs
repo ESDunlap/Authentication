@@ -12,7 +12,7 @@ public class Collectable : MonoBehaviour
     public PickupType type;
 
     private float speedBoost=(float) 1.1;
-    private float jumpBoost=(float) 1.2;
+    private float jumpBoost=(float) 1.1;
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Player"))
